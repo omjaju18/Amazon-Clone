@@ -69,91 +69,86 @@ function Payment() {
         navigate("/orders", { replace: true });
       });
 
-    const handleSubmit = async (event) => {
-      event.preventDefault();
-      //   Make disabled button, enabled
-      setProcessing(true);
+    const handleChange = (event) => {
+      // Listening any changes in CardElement
+      // Display errors
+      setDisabled(event.empty);
+      setError(event.error ? event.error.message : "");
+    };
 
-      const handleChange = (event) => {
-        // Listening any changes in CardElement
-        // Display errors
-        setDisabled(event.empty);
-        setError(event.error ? event.error.message : "");
-      };
+    return (
+      <div className="payment">
+        <div className="payment-container">
+          {/*Number of items added in Basket*/}
+          <h1>
+            Checkout (<Link to="/checkout">{basket.length} items </Link>)
+          </h1>
 
-      return (
-        <div className="payment">
-          <div className="payment-container">
-            {/*Number of items added in Basket*/}
-            <h1>
-              Checkout (<Link to="/checkout">{basket.length} items </Link>)
-            </h1>
-
-            {/* Delivery */}
-            <div className="payment-section">
-              <div className="payment-title">
-                <h3>Delivery Address</h3>
-              </div>
-              <div className="payment-address">
-                <p>{(user && user.email) || "User Email"}</p>
-                <p>{(user && user.address) || "123 React Lane"}</p>
-                <p>{(user && user.city) || "Los Angeles, CA"}</p>
-              </div>
+          {/* Delivery */}
+          <div className="payment-section">
+            <div className="payment-title">
+              <h3>Delivery Address</h3>
             </div>
+            <div className="payment-address">
+              <p>{(user && user.email) || "User Email"}</p>
+              <p>{(user && user.address) || "123 React Lane"}</p>
+              <p>{(user && user.city) || "Los Angeles, CA"}</p>
+            </div>
+          </div>
 
-            {/* review */}
-            <div className="payment-section">
-              <div className="payment-title">
-                <h3>Review items and delivery</h3>
-              </div>
-              <div className="payment-items">
-                {basket.map((item) => (
-                  <CheckoutProduct
-                    key={item.id}
-                    id={item.id}
-                    title={item.title}
-                    image={item.image}
-                    price={item.price}
-                    rating={item.rating}
+          {/* review */}
+          <div className="payment-section">
+            <div className="payment-title">
+              <h3>Review items and delivery</h3>
+            </div>
+            <div className="payment-items">
+              {basket.map((item) => (
+                <CheckoutProduct
+                  key={item.id}
+                  id={item.id}
+                  title={item.title}
+                  image={item.image}
+                  price={item.price}
+                  rating={item.rating}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Payment method */}
+          <div className="payment-section">
+            <div className="payment-title">
+              <h3>Payment Method</h3>
+            </div>
+            <div className="payment-details">
+              {/* Stripe */}
+              <form onSubmit={handleSubmit}>
+                <CardElement onChange={handleChange} />
+
+                <div className="payment-price">
+                  <CurrencyFormat
+                    renderText={(value) => <h3>Order Total: {value}</h3>}
+                    decimalScale={2}
+                    value={getBasketTotal(basket)}
+                    displayType={"text"}
+                    thousandSeparator={true}
+                    prefix={"$"}
                   />
-                ))}
-              </div>
-            </div>
 
-            {/* Payment method */}
-            <div className="payment-section">
-              <div className="payment-title">
-                <h3>Payment Method</h3>
-              </div>
-              <div className="payment-details">
-                {/* Stripe */}
-                <form onSubmit={handleSubmit}>
-                  <CardElement onChange={handleChange} />
+                  <button disabled={processing || disabled || succeeded}>
+                    <span>{processing ? <p>Processing</p> : "Buy Now"}</span>
+                  </button>
 
-                  <div className="payment-price">
-                    <CurrencyFormat
-                      renderText={(value) => <h3>Order Total: {value}</h3>}
-                      decimalScale={2}
-                      value={getBasketTotal(basket)}
-                      displayType={"text"}
-                      thousandSeparator={true}
-                      prefix={"$"}
-                    />
-
-                    <button disabled={processing || disabled || succeeded}>
-                      <span>{processing ? <p>Processing</p> : "Buy Now"}</span>
-                    </button>
-
-                    {/* Errors */}
-                    {error && <div>{error}</div>}
-                  </div>
-                </form>
-              </div>
+                  {/* Errors */}
+                  {error && <div>{error}</div>}
+                </div>
+              </form>
             </div>
           </div>
         </div>
-      );
-    };
+      </div>
+    );
   };
 }
+
 export default Payment;
